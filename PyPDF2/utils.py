@@ -235,7 +235,12 @@ else:
         if type(s) == bytes:
             return s
         else:
-            r = s.encode('utf-8')
+            r = ""
+            try:
+                r = s.encode('latin1')
+            except Exception as e:
+                r = s.encode('utf-8')
+
             if len(s) < 2:
                 bc[s] = r
             return r
