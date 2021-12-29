@@ -43,7 +43,7 @@ except ImportError:  # Py3
 xrange_fn = getattr(builtins, "xrange", range)
 _basestring = getattr(builtins, "basestring", str)
 
-bytes_type = type(bytes()) # Works the same in Python 2.X and 3.X
+bytes_type = type(bytes())  # Works the same in Python 2.X and 3.X
 string_type = getattr(builtins, "unicode", str)
 int_types = (int, long) if sys.version_info[0] < 3 else (int,)
 
@@ -64,9 +64,9 @@ def isBytes(b):
     return isinstance(b, bytes_type)
 
 
-#custom implementation of warnings.formatwarning
+# custom implementation of warnings.formatwarning
 def formatWarning(message, category, filename, lineno, line=None):
-    file = filename.replace("/", "\\").rsplit("\\", 1)[1] # find the file name
+    file = filename.replace("/", "\\").rsplit("\\", 1)[1]  # find the file name
     return "%s: %s [%s:%s]\n" % (category.__name__, message, file, lineno)
 
 
@@ -102,10 +102,10 @@ def skipOverWhitespace(stream):
     one whitespace character was read.
     """
     tok = WHITESPACES[0]
-    cnt = 0;
+    cnt = 0
     while tok in WHITESPACES:
         tok = stream.read(1)
-        cnt+=1
+        cnt += 1
     return (cnt > 1)
 
 
@@ -185,7 +185,7 @@ def RC4_encrypt(key, plaintext):
 def matrixMultiply(a, b):
     return [[sum([float(i)*float(j)
                   for i, j in zip(row, col)]
-                ) for col in zip(*b)]
+                 ) for col in zip(*b)]
             for row in a]
 
 
@@ -235,7 +235,7 @@ else:
         if type(s) == bytes:
             return s
         else:
-            r = s.encode('latin-1')
+            r = s.encode('utf-8')
             if len(s) < 2:
                 bc[s] = r
             return r
@@ -253,7 +253,7 @@ def str_(b):
         return b
     else:
         if type(b) == bytes:
-            return b.decode('latin-1')
+            return b.decode('utf-8')
         else:
             return b
 
