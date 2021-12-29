@@ -238,7 +238,7 @@ else:
             r = ""
             try:
                 r = s.encode('latin1')
-            except Exception as e:
+            except UnicodeEncodeError as e:
                 r = s.encode('utf-8')
 
             if len(s) < 2:
@@ -258,7 +258,7 @@ def str_(b):
         return b
     else:
         if type(b) == bytes:
-            return b.decode('utf-8')
+            return b.decode('latin1')
         else:
             return b
 
