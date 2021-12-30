@@ -1,8 +1,10 @@
 import binascii
+import io
 import os
 import sys
 import unittest
 
+from fpdf import FPDF
 from PyPDF2 import PdfFileReader, PdfFileWriter
 
 # Configure path environment
@@ -36,6 +38,19 @@ class PdfReaderTestCases(unittest.TestCase):
             self.assertEqual(ipdf_p1_text, pdftext,
                              msg='PDF extracted text differs from expected value.\n\nExpected:\n\n%r\n\nExtracted:\n\n%r\n\n'
                              % (pdftext, ipdf_p1_text))
+
+    def test_ReadWriteErrorPDF(self):
+
+        with open(os.path.join(RESOURCE_ROOT, 'mswordjpgen.pdf'), 'rb') as inputfile:
+            # Load PDF file from file
+            ipdf = PdfFileReader(inputfile)
+            ipdf_p1 = ipdf.getPage(0)
+
+            with open(os.path.join(RESOURCE_ROOT, 'mswordjpgen_.pdf'), 'wb') as outputfile:
+                opdf = PdfFileWriter()
+                # combine
+                opdf.addPage(ipdf_p1)
+                opdf.write(outputfile)
 
     def test_PdfReaderJpegImage(self):
         '''
