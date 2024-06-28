@@ -649,6 +649,48 @@ class CCITTFaxDecode:
         return tiff_header + data
 
 
+class DCTDecode(object):
+    def decode(data, decodeParms=None):
+        return data
+    decode = staticmethod(decode)
+    
+class JPXDecode(object):
+    def decode(data, decodeParms=None):
+        return data
+    decode = staticmethod(decode)
+    
+class CCITTFaxDecode(object):   
+    def decode(data, decodeParms=None, height=0):
+        if decodeParms:
+            if decodeParms.get("/K", 1) == -1:
+                CCITTgroup = 4
+            else:
+                CCITTgroup = 3
+        
+        width = decodeParms["/Columns"]
+        imgSize = len(data)
+        tiff_header_struct = '<' + '2s' + 'h' + 'l' + 'h' + 'hhll' * 8 + 'h'
+        tiffHeader = struct.pack(tiff_header_struct,
+                           b'II',  # Byte order indication: Little endian
+                           42,  # Version number (always 42)
+                           8,  # Offset to first IFD
+                           8,  # Number of tags in IFD
+                           256, 4, 1, width,  # ImageWidth, LONG, 1, width
+                           257, 4, 1, height,  # ImageLength, LONG, 1, length
+                           258, 3, 1, 1,  # BitsPerSample, SHORT, 1, 1
+                           259, 3, 1, CCITTgroup,  # Compression, SHORT, 1, 4 = CCITT Group 4 fax encoding
+                           262, 3, 1, 0,  # Thresholding, SHORT, 1, 0 = WhiteIsZero
+                           273, 4, 1, struct.calcsize(tiff_header_struct),  # StripOffsets, LONG, 1, length of header
+                           278, 4, 1, height,  # RowsPerStrip, LONG, 1, length
+                           279, 4, 1, imgSize,  # StripByteCounts, LONG, 1, size of image
+                           0  # last IFD
+                           )
+        
+        return tiffHeader + data
+    
+    decode = staticmethod(decode)
+
+
 def decode_stream_data(stream: Any) -> Union[bytes, str]:  # utils.StreamObject
     """
     Decode the stream data based on the specified filters.
@@ -699,6 +741,13 @@ def decode_stream_data(stream: Any) -> Union[bytes, str]:  # utils.StreamObject
             elif filter_type == FT.CCITT_FAX_DECODE:
                 height = stream.get(IA.HEIGHT, ())
                 data = CCITTFaxDecode.decode(data, params, height)
+            elif filter_type == "/DCTDecode":
+                data = DCTDecode.decode(data)
+            elif filter_type == "/JPXDecode":
+                data = JPXDecode.decode(data)
+            elif filter_type == "/CCITTFaxDecode":
+                height = stream.get("/Height", ())
+                data = CCITTFaxDecode.decode(data, stream.get("/DecodeParms"), height)
             elif filter_type == "/Crypt":
                 if "/Name" not in params and "/Type" not in params:
                     pass
